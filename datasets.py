@@ -4,6 +4,8 @@ import matplotlib.pyplot as plt
 from sklearn import preprocessing
 from sklearn.linear_model import LogisticRegression
 from sklearn.model_selection import train_test_split
+from sklearn.feature_selection import SelectKBest
+from statsmodels.stats.outliers_influence import variance_inflation_factor
 
 wine_quality_red1 = pd.read_csv(
     './data/winequality-red-1.csv', sep=";", decimal=',')
@@ -100,3 +102,25 @@ def show_scatterplot(data, x, y, x_label='feature', y_label='label'):
     plt.xlabel(x_label)
     plt.ylabel(y_label)
     plt.show()
+
+
+def get_kbest_sorted(selector, x, y, iterations):
+    flt = SelectKBest(selector).fit(x, y)
+    scores = flt.scores_
+    best_features = pd.DataFrame(scores, index=x.columns, columns=['score'])
+    for i in range(1, iterations):
+        np.random.seed(i)
+        flt = SelectKBest(selector).fit(x, y)
+        scores = flt.scores_
+        df = pd.DataFrame(scores, index=x.columns, columns=['score'])
+        best_features = df + best_features
+    best_features = best_features / i
+    best_features = best_features.sort_values(by=['score'], ascending=False)
+    return best_features
+
+
+def get_vifs(x):
+    vif_factors = pd.Series([variance_inflation_factor(x.values, i)
+                             for i in range(x.shape[1])], index=x.columns)
+    vif_factors = round(vif_factors, 2)
+    return vif_factors
