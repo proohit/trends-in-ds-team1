@@ -52,7 +52,9 @@ def get_wine_red_label():
 
 
 def show_mvs(data):
-    display(data[data.isnull().any(axis=1)])
+    mvs = data[data.isnull().any(axis=1)]
+    display(mvs)
+    return mvs
 
 
 def drop_mvs_all_inplace(data):
