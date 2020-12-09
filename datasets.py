@@ -3,9 +3,11 @@ import numpy as np
 import matplotlib.pyplot as plt
 from sklearn import preprocessing
 from sklearn.linear_model import LogisticRegression
-from sklearn.model_selection import train_test_split
+from sklearn.model_selection import train_test_split, cross_val_predict
 from sklearn.feature_selection import SelectKBest
 from statsmodels.stats.outliers_influence import variance_inflation_factor
+from sklearn.metrics import accuracy_score
+
 
 wine_quality_red1 = pd.read_csv(
     './data/winequality-red-1.csv', sep=";", decimal=',')
@@ -72,6 +74,13 @@ def get_logist_regression_score(x, y):
         x, y, train_size=0.7, random_state=1)
     lr = LogisticRegression().fit(x_train, y_train)
     return lr.score(x_test, y_test)
+
+
+def get_logist_regression_kfold_score(x, y):
+    lr = LogisticRegression()
+    y_pred = cross_val_predict(lr, x, y)
+    score = accuracy_score(y, y_pred)
+    return score
 
 
 def normalize_feature(data, feature):
