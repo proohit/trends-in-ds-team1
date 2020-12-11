@@ -83,6 +83,12 @@ def get_logist_regression_kfold_score(x, y):
     return score
 
 
+def get_kfold_score(clf, x, y):
+    y_pred = cross_val_predict(clf, x, y)
+    score = accuracy_score(y, y_pred)
+    return score
+
+
 def normalize_feature(data, feature):
     scaler2 = preprocessing.MinMaxScaler()
     feature_normalized = scaler2.fit_transform(data[[feature]])
