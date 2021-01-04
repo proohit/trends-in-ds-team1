@@ -24,6 +24,9 @@ wine_red = pd.merge(left=wine_quality_red1,
 wine_white = pd.merge(left=wine_quality_white1,
                       right=wine_quality_white2, on='ID')
 
+popularity_data = pd.read_csv(
+    './data/OnlineNewsPopularity.csv', sep=",", decimal=".")
+
 
 def wine_red_dataset():
     return pd.merge(left=wine_quality_red1, right=wine_quality_red2, on='ID')
@@ -31,6 +34,10 @@ def wine_red_dataset():
 
 def wine_white_dataset():
     return pd.merge(left=wine_quality_white1, right=wine_quality_white2, on='ID')
+
+
+def popularity_dataset():
+    return popularity_data.drop('url', axis=1)
 
 
 def get_wine_red_features():
