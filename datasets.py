@@ -40,6 +40,14 @@ def popularity_dataset():
     return popularity_data.drop('url', axis=1)
 
 
+def get_popularity_features(dataset=popularity_dataset()):
+    return dataset.drop(' shares', axis=1).drop('days_article_dataset', axis=1)
+
+
+def get_popularity_label(dataset=popularity_dataset()):
+    return dataset.loc[:, [' shares']]
+
+
 def get_wine_red_features():
     wine_red = wine_red_dataset()
     return wine_red.drop('ID', axis=1).drop('quality', axis=1)
