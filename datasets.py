@@ -66,6 +66,17 @@ def show_mvs(data):
     return mvs
 
 
+def get_mvs_of_feature(data, feature):
+    if isinstance(feature, list):
+        return data[data[feature].isna().any(axis=1) == True]
+    else:
+        return data[data[feature].isna()]
+
+
+def get_mvs_of_features(data, features):
+    return data[data[features].isna().any(axis=1) == True]
+
+
 def drop_mvs_all_inplace(data):
     data.dropna(how='all', inplace=True)
 
