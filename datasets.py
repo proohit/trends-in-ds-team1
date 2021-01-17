@@ -1,13 +1,14 @@
-import pandas as pd
-import numpy as np
 import matplotlib.pyplot as plt
+import numpy as np
+import pandas as pd
 from sklearn import preprocessing
-from sklearn.linear_model import LogisticRegression
-from sklearn.model_selection import train_test_split, cross_val_predict
+from sklearn.ensemble import RandomForestClassifier, VotingClassifier
 from sklearn.feature_selection import SelectKBest
-from statsmodels.stats.outliers_influence import variance_inflation_factor
+from sklearn.linear_model import LogisticRegression
 from sklearn.metrics import accuracy_score
-
+from sklearn.model_selection import cross_val_predict, train_test_split
+from sklearn.naive_bayes import GaussianNB
+from statsmodels.stats.outliers_influence import variance_inflation_factor
 
 wine_quality_red1 = pd.read_csv(
     './data/winequality-red-1.csv', sep=";", decimal=',')
@@ -189,3 +190,28 @@ def get_class_for_value(value, cutpoints, classes):
         return classes[3]
     elif value >= cutpoints[4][0]:
         return classes[4]
+
+
+def get_noises(x, y, classname='actual_data', threshold=1):
+    # Define 3 classifiers
+    clf1 = LogisticRegression(multi_class='multinomial', random_state=1)
+    clf2 = RandomForestClassifier(n_estimators=50, random_state=1)
+    clf3 = GaussianNB()
+
+    # merge 3 classifiers into one voting classifier
+    eclf1 = VotingClassifier(
+        estimators=[('lr', clf1), ('rf', clf2), ('gnb', clf3)], voting='hard')
+
+    # train voting classifier with k-fold method
+    y_pred = cross_val_predict(eclf1, x, y, cv=3)
+
+    # save predictions, original quality and correct prediction boolean in data frame
+    result = pd.DataFrame(y_pred, columns=['Prediction'])
+    result[classname] = y
+    result['Correct Prediction'] = abs(
+        result['Prediction'] - result[classname]) < threshold
+
+    # select all incorrect predicted data
+    print('False predictions')
+    delta_result = result[result['Correct Prediction'] == False]
+    return (result, delta_result)
