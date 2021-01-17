@@ -167,3 +167,25 @@ def get_vifs(x):
                              for i in range(x.shape[1])], index=x.columns)
     vif_factors = round(vif_factors, 2)
     return vif_factors
+
+
+def get_cutpoints_for_percent(data, min, max, class_variable):
+    total = data.shape[0]
+    min_data = round(total - total * (1-min))
+    max_data = round(total - total * (1-max))
+    min_shares = data.iloc[min_data][class_variable]
+    max_shares = data.iloc[max_data - 1][class_variable]
+    return (min_shares, max_shares)
+
+
+def get_class_for_value(value, cutpoints, classes):
+    if value < cutpoints[0][1]:
+        return classes[0]
+    elif value >= cutpoints[1][0] and value < cutpoints[2][1]:
+        return classes[1]
+    elif value >= cutpoints[2][0] and value < cutpoints[3][1]:
+        return classes[2]
+    elif value >= cutpoints[3][0] and value < cutpoints[4][1]:
+        return classes[3]
+    elif value >= cutpoints[4][0]:
+        return classes[4]
