@@ -10,6 +10,13 @@ from sklearn.model_selection import cross_val_predict, train_test_split
 from sklearn.naive_bayes import GaussianNB
 from statsmodels.stats.outliers_influence import variance_inflation_factor
 from sklearn.ensemble import IsolationForest
+from sklearn.model_selection import cross_val_score
+from sklearn.neighbors import KNeighborsClassifier
+from sklearn.tree import DecisionTreeClassifier
+from sklearn.linear_model import LogisticRegression
+from sklearn.naive_bayes import GaussianNB
+from sklearn.neural_network import MLPClassifier
+from sklearn.svm import SVC
 
 wine_quality_red1 = pd.read_csv(
     './data/winequality-red-1.csv', sep=";", decimal=',')
@@ -233,3 +240,30 @@ def get_outliers(x, y):
     # display(X_red)
 
     return X_outliers, y_outliers
+
+
+def accuracy_score(classifier, x, y):
+    scores = cross_val_score(classifier, x, y, cv=5)
+    accuracy = scores.mean()
+    return accuracy
+
+
+def calculate_scores(x, y):
+    svcClf = SVC()
+    svcScore = accuracy_score(svcClf, x, y)
+    print("Accuracy SVM: %0.2f" % svcScore)
+    logitClf = LogisticRegression()
+    logitScore = accuracy_score(logitClf, x, y)
+    print("Accuracy Logistic Regression: %0.2f" % logitScore)
+    knnClf = KNeighborsClassifier()
+    knnScore = accuracy_score(knnClf, x, y)
+    print("Accuracy KNN: %0.2f" % knnScore)
+    nbClf = GaussianNB()
+    nbScore = accuracy_score(nbClf, x, y)
+    print("Accuracy Naive Bayes: %0.2f" % nbScore)
+    treeClf = DecisionTreeClassifier()
+    treeScore = accuracy_score(treeClf, x, y)
+    print("Accuracy Decision Tree: %0.2f" % treeScore)
+    annClf = MLPClassifier(hidden_layer_sizes=(50, 50), random_state=1)
+    annScore = accuracy_score(annClf, x, y)
+    print("Accuracy ANN: %0.2f" % annScore)
