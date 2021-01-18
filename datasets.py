@@ -9,6 +9,7 @@ from sklearn.metrics import accuracy_score
 from sklearn.model_selection import cross_val_predict, train_test_split
 from sklearn.naive_bayes import GaussianNB
 from statsmodels.stats.outliers_influence import variance_inflation_factor
+from sklearn.ensemble import IsolationForest
 
 wine_quality_red1 = pd.read_csv(
     './data/winequality-red-1.csv', sep=";", decimal=',')
@@ -215,3 +216,20 @@ def get_noises(x, y, classname='actual_data', threshold=1):
     print('False predictions')
     delta_result = result[result['Correct Prediction'] == False]
     return (result, delta_result)
+
+
+def get_outliers(x, y):
+    iso = IsolationForest(contamination=0.1)
+    y_out = iso.fit_predict(x)
+
+    # build a mask to select all rows that are not outliers (inlier=1, outlier=-1)
+    mask = y_out != 1
+    X_outliers, y_outliers = x[mask], y[mask]
+
+    # Inliers vs. Outliers
+    print("Inliers: ", x.shape[0]-X_outliers.shape[0],
+          "Outliers:", X_outliers.shape[0])
+
+    # display(X_red)
+
+    return X_outliers, y_outliers
