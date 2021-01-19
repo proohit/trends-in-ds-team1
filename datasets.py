@@ -17,6 +17,7 @@ from sklearn.linear_model import LogisticRegression
 from sklearn.naive_bayes import GaussianNB
 from sklearn.neural_network import MLPClassifier
 from sklearn.svm import SVC
+from sklearn.model_selection import StratifiedShuffleSplit
 
 wine_quality_red1 = pd.read_csv(
     './data/winequality-red-1.csv', sep=";", decimal=',')
@@ -188,13 +189,13 @@ def get_cutpoints_for_percent(data, min, max, class_variable):
 
 
 def get_class_for_value(value, cutpoints, classes):
-    if value < cutpoints[0][1]:
+    if value <= cutpoints[0][1]:
         return classes[0]
-    elif value >= cutpoints[1][0] and value < cutpoints[2][1]:
+    elif value <= cutpoints[1][1]:
         return classes[1]
-    elif value >= cutpoints[2][0] and value < cutpoints[3][1]:
+    elif value <= cutpoints[2][1]:
         return classes[2]
-    elif value >= cutpoints[3][0] and value < cutpoints[4][1]:
+    elif value <= cutpoints[3][1]:
         return classes[3]
     elif value >= cutpoints[4][0]:
         return classes[4]
@@ -267,3 +268,12 @@ def calculate_scores(x, y):
     annClf = MLPClassifier(hidden_layer_sizes=(50, 50), random_state=1)
     annScore = accuracy_score(annClf, x, y)
     print("Accuracy ANN: %0.2f" % annScore)
+
+
+def get_sample_data(x, y, extra_column, size=.25):
+    skf = StratifiedShuffleSplit(n_splits=1, train_size=size, random_state=1)
+    for train_index, test_index in skf.split(x, y):
+        sample_data = pd.DataFrame(x.iloc[train_index], columns=x.columns)
+        sample_data[y.name] = y.iloc[train_index]
+        sample_data[extra_column.name] = extra_column.iloc[train_index]
+        return sample_data
