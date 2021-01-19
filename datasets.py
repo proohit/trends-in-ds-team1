@@ -201,11 +201,13 @@ def get_class_for_value(value, cutpoints, classes):
         return classes[4]
 
 
-def get_noises(x, y, classname='actual_data', threshold=1):
+def get_noises(x, y, threshold=1):
     # Define 3 classifiers
     clf1 = LogisticRegression(multi_class='multinomial', random_state=1)
     clf2 = RandomForestClassifier(n_estimators=50, random_state=1)
     clf3 = GaussianNB()
+
+    classname = y.name
 
     # merge 3 classifiers into one voting classifier
     eclf1 = VotingClassifier(
@@ -215,7 +217,7 @@ def get_noises(x, y, classname='actual_data', threshold=1):
     y_pred = cross_val_predict(eclf1, x, y, cv=3)
 
     # save predictions, original quality and correct prediction boolean in data frame
-    result = pd.DataFrame(y_pred, columns=['Prediction'])
+    result = pd.DataFrame(y_pred, columns=['Prediction'], index=x.index)
     result[classname] = y
     result['Correct Prediction'] = abs(
         result['Prediction'] - result[classname]) < threshold
@@ -226,8 +228,8 @@ def get_noises(x, y, classname='actual_data', threshold=1):
     return (result, delta_result)
 
 
-def get_outliers(x, y):
-    iso = IsolationForest(contamination=0.1)
+def get_outliers(x, y, contamination=0.1):
+    iso = IsolationForest(contamination=contamination)
     y_out = iso.fit_predict(x)
 
     # build a mask to select all rows that are not outliers (inlier=1, outlier=-1)
@@ -239,8 +241,10 @@ def get_outliers(x, y):
           "Outliers:", X_outliers.shape[0])
 
     # display(X_red)
-
-    return X_outliers, y_outliers
+    outliers = pd.DataFrame(
+        X_outliers, columns=x.columns, index=X_outliers.index)
+    outliers[y.name] = y_outliers
+    return outliers
 
 
 def accuracy_score(classifier, x, y):
