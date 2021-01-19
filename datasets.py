@@ -247,7 +247,7 @@ def get_outliers(x, y, contamination=0.1):
     return outliers
 
 
-def accuracy_score(classifier, x, y):
+def accuracy_score_model(classifier, x, y):
     scores = cross_val_score(classifier, x, y, cv=5)
     accuracy = scores.mean()
     return accuracy
@@ -255,22 +255,22 @@ def accuracy_score(classifier, x, y):
 
 def calculate_scores(x, y):
     svcClf = SVC()
-    svcScore = accuracy_score(svcClf, x, y)
+    svcScore = accuracy_score_model(svcClf, x, y)
     print("Accuracy SVM: %0.2f" % svcScore)
     logitClf = LogisticRegression()
-    logitScore = accuracy_score(logitClf, x, y)
+    logitScore = accuracy_score_model(logitClf, x, y)
     print("Accuracy Logistic Regression: %0.2f" % logitScore)
     knnClf = KNeighborsClassifier()
-    knnScore = accuracy_score(knnClf, x, y)
+    knnScore = accuracy_score_model(knnClf, x, y)
     print("Accuracy KNN: %0.2f" % knnScore)
     nbClf = GaussianNB()
-    nbScore = accuracy_score(nbClf, x, y)
+    nbScore = accuracy_score_model(nbClf, x, y)
     print("Accuracy Naive Bayes: %0.2f" % nbScore)
     treeClf = DecisionTreeClassifier()
-    treeScore = accuracy_score(treeClf, x, y)
+    treeScore = accuracy_score_model(treeClf, x, y)
     print("Accuracy Decision Tree: %0.2f" % treeScore)
     annClf = MLPClassifier(hidden_layer_sizes=(50, 50), random_state=1)
-    annScore = accuracy_score(annClf, x, y)
+    annScore = accuracy_score_model(annClf, x, y)
     print("Accuracy ANN: %0.2f" % annScore)
 
 
@@ -281,3 +281,20 @@ def get_sample_data(x, y, extra_column, size=.25):
         sample_data[y.name] = y.iloc[train_index]
         sample_data[extra_column.name] = extra_column.iloc[train_index]
         return sample_data
+
+
+def perform_forward_selection(data, label, columns, clf=LogisticRegression()):
+    score = 0
+    columns_to_use = []
+    for column in columns:
+        columns_to_use.append(column)
+        x = data[columns_to_use]
+        y = data[label]
+        score_temp = accuracy_score_model(clf, x, y)
+        if score_temp - score < 0:
+            columns_to_use.remove(column)
+            print(f"skipping feature {column}")
+            continue
+        score = score_temp
+        print(f"Score with features {columns_to_use}: {score}")
+    return columns_to_use
