@@ -283,7 +283,7 @@ def get_sample_data(x, y, extra_column, size=.25):
         return sample_data
 
 
-def perform_forward_selection(data, label, columns, clf=LogisticRegression()):
+def perform_forward_selection(data, label, columns, clf=LogisticRegression(), verbose=0):
     score = 0
     columns_to_use = []
     for column in columns:
@@ -293,8 +293,10 @@ def perform_forward_selection(data, label, columns, clf=LogisticRegression()):
         score_temp = accuracy_score_model(clf, x, y)
         if score_temp - score < 0:
             columns_to_use.remove(column)
-            print(f"skipping feature {column}")
+            if verbose >= 2:
+                print(f"skipping feature {column}")
             continue
         score = score_temp
-        print(f"Score with features {columns_to_use}: {score}")
-    return columns_to_use
+        if verbose >= 1:
+            print(f"Score with features {columns_to_use}: {score}")
+    return columns_to_use, score
