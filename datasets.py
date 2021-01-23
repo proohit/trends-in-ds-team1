@@ -189,16 +189,16 @@ def get_cutpoints_for_percent(data, min, max, class_variable):
 
 
 def get_class_for_value(value, cutpoints, classes):
-    if value <= cutpoints[0][1]:
-        return classes[0]
-    elif value <= cutpoints[1][1]:
-        return classes[1]
-    elif value <= cutpoints[2][1]:
-        return classes[2]
-    elif value <= cutpoints[3][1]:
-        return classes[3]
-    elif value >= cutpoints[4][0]:
-        return classes[4]
+    if len(cutpoints) != len(classes):
+        raise ValueError('Cutpoints size do not match classes size')
+
+    for i in range(len(cutpoints)):
+        if i == 0 and value <= cutpoints[i][1]:
+            return classes[i]
+        if i == len(cutpoints) and value >= cutpoints[i][0]:
+            return classes[i]
+        if value <= cutpoints[i][1]:
+            return classes[i]
 
 
 def get_noises(x, y, threshold=1):
